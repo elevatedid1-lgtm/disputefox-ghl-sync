@@ -76,9 +76,9 @@ Run **one** instance only, because the SQLite file is the source of truth for th
 1. Create a new service from this GitHub repo. It builds from the `Dockerfile`.
 2. Attach a volume or disk mounted at **`/data`**.
 3. Set the environment variables from `.env.example` in the dashboard (never in the repo).
-4. Set the health check path to `/healthz`. Your webhook URL is `https://<your-service-domain>/webhooks/disputefox`.
+4. Your webhook URL is `https://<your-service-domain>/webhooks/disputefox`.
 
-(The Dockerfile hasn't been built or run yet because Docker wasn't available where this was developed. Build it once locally, or let the host build it, before relying on it.)
+`railway.json` sets the health check (`/healthz`) and pins the service to one replica. The Dockerfile deliberately has no `VOLUME` line (Railway rejects it) and runs as root so it can write to Railway's root-owned volume.
 
 **Option B: a small Linux VPS** (about $5/month, e.g. DigitalOcean or Hetzner Ubuntu 24.04).
 
