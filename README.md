@@ -35,6 +35,8 @@ DisputeFox AutoFox                    this service                            Go
 | GHL returns 429, 5xx, or a network error | Quick retries honoring `Retry-After`, then backoff at 30s, 2m, 8m, 32m, and 1h, then `failed` |
 | GHL returns 401 or 4xx | `failed` right away (fix the cause, then run `retry`) |
 
+If `GHL_CLIENT_ID_FIELD_ID` is set, the DisputeFox client ID is also written to that GHL custom field (for Elevated Identities: the **Dispute Fox Client ID** field), so staff can see the link on the contact.
+
 Empty fields never overwrite existing GHL data. Payload fields other than the five it needs (for example an SSN someone adds to the AutoFox template) are discarded and never stored or logged. Logs mask emails and phone numbers and never contain the token or secret.
 
 ---
@@ -44,8 +46,8 @@ Empty fields never overwrite existing GHL data. Payload fields other than the fi
 Requires Python 3.10+ (`python3 --version`). There are no packages to install.
 
 ```bash
-git clone https://github.com/katherineotibhor-ops/dispute-fox-to-ghl.git
-cd dispute-fox-to-ghl
+git clone https://github.com/elevatedid1-lgtm/disputefox-ghl-sync.git
+cd disputefox-ghl-sync
 python3 -m unittest -v            # 25 tests against a fake GHL server, no network needed
 cp .env.example .env              # then edit .env (see "What I need from you")
 python3 -c "import secrets;print(secrets.token_urlsafe(32))"   # paste result into WEBHOOK_SECRET
@@ -82,7 +84,7 @@ Run **one** instance only, because the SQLite file is the source of truth for th
 
 ```bash
 sudo useradd --system --home /opt/dfghl dfghl
-sudo git clone https://github.com/katherineotibhor-ops/dispute-fox-to-ghl.git /opt/dfghl
+sudo git clone https://github.com/elevatedid1-lgtm/disputefox-ghl-sync.git /opt/dfghl
 sudo mkdir -p /opt/dfghl/data && sudo cp /opt/dfghl/.env.example /opt/dfghl/.env && sudo nano /opt/dfghl/.env
 sudo chown -R dfghl:dfghl /opt/dfghl && sudo chmod 600 /opt/dfghl/.env
 sudo cp /opt/dfghl/deploy/dfghl.service /etc/systemd/system/

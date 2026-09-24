@@ -105,7 +105,7 @@ class Syncer:
             log.info("event %s %s DRY RUN: would %s %s", event_id, who, action, target or "new contact")
             return "dry_run"
 
-        fields = rec.ghl_fields()
+        fields = rec.ghl_fields(self.cfg.ghl_client_id_field)
         if action == "create":
             target = self.ghl.create_contact(fields)
             # Save the link right away so a failure below can never lead to a second create.

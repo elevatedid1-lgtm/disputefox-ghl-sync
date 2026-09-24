@@ -62,6 +62,7 @@ class Config:
     rate_limit_per_10s: int = 80
     http_timeout: int = 20
     max_body_bytes: int = 65536
+    ghl_client_id_field: str = ""
 
     @classmethod
     def from_env(cls, require_secrets=True):
@@ -85,6 +86,7 @@ class Config:
             rate_limit_per_10s=_int("RATE_LIMIT_PER_10S", cls.rate_limit_per_10s),
             http_timeout=_int("HTTP_TIMEOUT", cls.http_timeout),
             max_body_bytes=_int("MAX_BODY_BYTES", cls.max_body_bytes),
+            ghl_client_id_field=_str("GHL_CLIENT_ID_FIELD_ID"),
         )
         if require_secrets:
             missing = [n for n, v in (("GHL_API_TOKEN", cfg.ghl_api_token),

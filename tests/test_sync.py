@@ -57,6 +57,21 @@ class SyncTests(unittest.TestCase):
         self.assertEqual(c["source"], "DisputeFox")
         self.assertEqual(self.store.get_mapping("DF1")["ghl_contact_id"], ev["ghl_contact_id"])
 
+    def test_writes_client_id_custom_field_when_configured(self):
+        self.cfg.ghl_client_id_field = "cf123"
+        ev = self.push()
+        c = self.ghl.contacts[ev["ghl_contact_id"]]
+        self.assertEqual(c["customFields"], [{"id": "cf123", "field_value": "DF1"}])
+        ev2 = self.push(phone="555-999-0000")
+        update_body = [r for r in self.ghl.requests if r[0] == "PUT"][-1][3]
+        self.assertEqual(update_body["customFields"], [{"id": "cf123", "field_value": "DF1"}])
+
+    def test_no_custom_field_by_default_or_for_email_keys(self):
+        ev = self.push()
+        self.assertNotIn("customFields", self.ghl.contacts[ev["ghl_contact_id"]])
+        record, _ = extract({"email": "z@example.com"}, allow_email_as_client_id=True)
+        self.assertNotIn("customFields", record.ghl_fields("cf123"))
+
     def test_repeat_event_creates_no_duplicate_and_no_writes(self):
         self.push()
         writes_before = len(self.ghl.writes())

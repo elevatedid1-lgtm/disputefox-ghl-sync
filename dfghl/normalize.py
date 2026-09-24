@@ -44,8 +44,11 @@ class ClientRecord:
     email: str = ""
     phone: str = ""
 
-    def ghl_fields(self):
-        """Fields to send to GHL. Empty values are left out so we never blank out data."""
+    def ghl_fields(self, client_id_field=""):
+        """Fields to send to GHL. Empty values are left out so we never blank out data.
+
+        client_id_field: id of a GHL contact custom field that should hold the DisputeFox client ID.
+        """
         out = {}
         if self.first_name:
             out["firstName"] = self.first_name
@@ -55,6 +58,8 @@ class ClientRecord:
             out["email"] = self.email
         if self.phone:
             out["phone"] = self.phone
+        if client_id_field and not self.client_id.startswith("email:"):
+            out["customFields"] = [{"id": client_id_field, "field_value": self.client_id}]
         return out
 
     def fingerprint(self):
