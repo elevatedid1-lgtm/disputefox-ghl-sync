@@ -66,6 +66,24 @@ class SyncTests(unittest.TestCase):
         update_body = [r for r in self.ghl.requests if r[0] == "PUT"][-1][3]
         self.assertEqual(update_body["customFields"], [{"id": "cf123", "field_value": "DF1"}])
 
+    def test_writes_affiliate_custom_field_when_configured(self):
+        self.cfg.ghl_client_id_field = "cf123"
+        self.cfg.ghl_affiliate_field = "cfAff"
+        record, notes = extract({"client_id": "DF9", "email": "aff@example.com", "affiliate": "Smile Center - Rep Jo"})
+        self.store.enqueue(record, notes)
+        self.syncer.run_due()
+        contact = next(c for c in self.ghl.contacts.values() if c.get("email") == "aff@example.com")
+        self.assertEqual(contact["customFields"], [{"id": "cf123", "field_value": "DF9"},
+                                                   {"id": "cfAff", "field_value": "Smile Center - Rep Jo"}])
+
+    def test_fingerprint_unchanged_without_affiliate(self):
+        record, _ = rec()
+        self.assertEqual(record.affiliate, "")
+        import hashlib
+        legacy = hashlib.sha256(json.dumps([record.client_id, record.first_name, record.last_name,
+                                            record.email, record.phone]).encode()).hexdigest()
+        self.assertEqual(record.fingerprint(), legacy)
+
     def test_no_custom_field_by_default_or_for_email_keys(self):
         ev = self.push()
         self.assertNotIn("customFields", self.ghl.contacts[ev["ghl_contact_id"]])

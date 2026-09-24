@@ -25,6 +25,8 @@ ALIASES = {
     "email": ["email", "emailaddress", "clientemail", "email1", "primaryemail"],
     "phone": ["phone", "mobile", "mobilephone", "cellphone", "cell", "phonenumber", "clientphone",
               "mobilenumber", "homephone", "primaryphone"],
+    "affiliate": ["affiliate", "affiliatename", "affiliatefrom", "referredby", "referral", "referralsource",
+                  "referralpartner"],
 }
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -43,11 +45,13 @@ class ClientRecord:
     last_name: str = ""
     email: str = ""
     phone: str = ""
+    affiliate: str = ""
 
-    def ghl_fields(self, client_id_field=""):
+    def ghl_fields(self, client_id_field="", affiliate_field=""):
         """Fields to send to GHL. Empty values are left out so we never blank out data.
 
         client_id_field: id of a GHL contact custom field that should hold the DisputeFox client ID.
+        affiliate_field: id of a GHL contact custom field that should hold the referring affiliate.
         """
         out = {}
         if self.first_name:
@@ -58,12 +62,20 @@ class ClientRecord:
             out["email"] = self.email
         if self.phone:
             out["phone"] = self.phone
+        custom = []
         if client_id_field and not self.client_id.startswith("email:"):
-            out["customFields"] = [{"id": client_id_field, "field_value": self.client_id}]
+            custom.append({"id": client_id_field, "field_value": self.client_id})
+        if affiliate_field and self.affiliate:
+            custom.append({"id": affiliate_field, "field_value": self.affiliate})
+        if custom:
+            out["customFields"] = custom
         return out
 
     def fingerprint(self):
-        raw = json.dumps([self.client_id, self.first_name, self.last_name, self.email, self.phone])
+        values = [self.client_id, self.first_name, self.last_name, self.email, self.phone]
+        if self.affiliate:  # only when present, so fingerprints saved before this field existed still match
+            values.append(self.affiliate)
+        raw = json.dumps(values)
         return hashlib.sha256(raw.encode()).hexdigest()
 
 
@@ -189,6 +201,7 @@ def extract(data: dict, default_cc="1", allow_email_as_client_id=False):
         last_name=pick("last_name")[:100],
         email=email,
         phone=phone,
+        affiliate=pick("affiliate")[:200],
     )
     return record, notes
 

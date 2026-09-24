@@ -35,6 +35,8 @@ DisputeFox AutoFox                    this service                            Go
 | GHL returns 429, 5xx, or a network error | Quick retries honoring `Retry-After`, then backoff at 30s, 2m, 8m, 32m, and 1h, then `failed` |
 | GHL returns 401 or 4xx | `failed` right away (fix the cause, then run `retry`) |
 
+If `GHL_AFFILIATE_FIELD_ID` is set and DisputeFox sends an `affiliate` parameter, the referring office or rep is written to that GHL custom field.
+
 If `GHL_CLIENT_ID_FIELD_ID` is set, the DisputeFox client ID is also written to that GHL custom field (for Elevated Identities: the **Dispute Fox Client ID** field), so staff can see the link on the contact.
 
 Empty fields never overwrite existing GHL data. Payload fields other than the five it needs (for example an SSN someone adds to the AutoFox template) are discarded and never stored or logged. Logs mask emails and phone numbers and never contain the token or secret.
