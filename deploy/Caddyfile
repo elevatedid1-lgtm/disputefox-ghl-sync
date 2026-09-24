@@ -1,0 +1,4 @@
+# Replace with your domain; Caddy gets the HTTPS certificate automatically.
+sync.yourdomain.com {
+    reverse_proxy 127.0.0.1:8080
+}

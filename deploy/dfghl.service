@@ -1,0 +1,20 @@
+# systemd unit for a Linux VPS. Install: see README "Option B".
+[Unit]
+Description=DisputeFox -> GoHighLevel sync
+After=network-online.target
+
+[Service]
+User=dfghl
+WorkingDirectory=/opt/dfghl
+EnvironmentFile=/opt/dfghl/.env
+Environment=HOST=127.0.0.1
+ExecStart=/usr/bin/python3 -m dfghl serve
+Restart=always
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/dfghl/data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

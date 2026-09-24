@@ -1,0 +1,2 @@
+# Daily at 03:17: clear names/emails/phones from finished events older than 30 days
+17 3 * * * dfghl cd /opt/dfghl && /usr/bin/python3 -m dfghl purge --days 30 >/dev/null 2>&1
